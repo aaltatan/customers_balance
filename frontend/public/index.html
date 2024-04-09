@@ -1,0 +1,23 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Customers Balance</title>
+    <link rel="icon" type="image/png" href='{% static "favicon.png" %}' />
+    <link rel="stylesheet" href='{% static "bundle.css" %}' />
+    <link rel="stylesheet" href='{% static "global.css" %}' />
+    <script defer src='{% static "bundle.js" %}'></script>
+  </head>
+
+  <body class="min-h-[calc(100vh-4rem)]">
+    <div id="app" dir="ltr"></div>
+
+    <script>
+      const username = '{{ request.user.username }}';
+      localStorage.setItem('username', username);
+    </script>
+
+  </body>
+</html>

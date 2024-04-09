@@ -1,0 +1,23 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href='{% static "bundle.css" %}' />
+  <link rel="stylesheet" href='{% static "global.css" %}' />
+  <title>Not Found</title>
+</head>
+<body>
+  <div class="flex items-center justify-center flex-col gap-4">
+    <h1 class="text-7xl font-bold tracking-tighter">
+      Oops!
+    </h1>
+    <p class="font-semibold">404 - Page not found</p>
+    <p class="text-slate-500 tracking-tighter">we could not found the page you are looking for</p>
+    <a href="/" class="btn btn-primary py-2 px-4">
+      go to Homepage
+    </a>
+  </div>
+</body>
+</html>
