@@ -2,7 +2,7 @@ from .base import *
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(BASE_DIR)
 
 DEBUG = False
 
