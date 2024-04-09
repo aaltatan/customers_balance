@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-project_folder = os.path.expanduser(os.getenv("PROJECT_FOLDER"))
+project_folder = os.path.expanduser("~/customers_balance")
 
 load_dotenv(os.path.join(project_folder, ".env"))
 
