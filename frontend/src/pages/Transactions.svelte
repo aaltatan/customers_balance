@@ -7,6 +7,7 @@
   import { breadcrumb } from "../stores/store";
   import Table from "../components/Table.svelte";
   import { _ } from "svelte-i18n";
+  import ExcelExport from '../components/ExportExcel.svelte';
 
   let headers = [
     $_("pages.transactions.tableHeader.amount"),
@@ -83,18 +84,22 @@
       <span class="font-semibold">{lengthOfData}</span>
       {$_("pages.transactions.tableMessage.recordsFound")}
     </span>
-    {#if lengthOfData > transactions.length}
-      <button class="btn btn-primary block py-1 px-2 mx-auto" on:click={fetchMore}>
-        <div class="flex items-center gap-1">
-          <span>
-            {$_("pages.transactions.getMore")}
-          </span>
-          {#if loading}
-            <Loading ratio="1rem" />
-          {/if}
-        </div>
-      </button>
-    {/if}
+
+    <div class="flex items-center justify-center gap-1">
+      {#if lengthOfData > transactions.length}
+        <button class="btn btn-primary py-1 px-2" on:click={fetchMore}>
+          <div class="flex items-center gap-1">
+            <span>
+              {$_("pages.transactions.getMore")}
+            </span>
+            {#if loading}
+              <Loading ratio="1rem" />
+            {/if}
+          </div>
+        </button>
+      {/if}
+      <ExcelExport endpoint="/api/transactions/excel" />
+    </div>
   {:else}
     <LoadingModal />
   {/if}

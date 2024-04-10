@@ -1,15 +1,29 @@
 from ninja import Router
-from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest
 from typing import List
 from . import schemas
 from .models import Customer
-from django.db.models import Sum, F
+from django.db.models import Sum, F, Count
+from excel_response import ExcelResponse
 
 
 router = Router(
     tags=['Customers']
 )
+
+
+@router.get('/excel')
+def export_customers_to_excel(request: HttpRequest):
+    """ export customers to excel """
+    customers = (
+        Customer
+        .objects
+        .annotate(
+            net=Sum(F("transaction__debit") - F("transaction__credit")),
+            transactions_count=Count('transaction__debit')
+        )
+    )
+    return ExcelResponse(customers, 'customers')
 
 
 @router.post(

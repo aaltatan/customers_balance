@@ -3,6 +3,10 @@ const ar = {
   currentlanguage: 'English',
   logout: 'خروج',
 
+  buttons: {
+    exportExcel: 'تصدير كملف إكسل'
+  }, 
+
   pages: {
     addTransaction: {
       tabs: {

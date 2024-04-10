@@ -5,6 +5,7 @@
   import Loading from "../components/icons/Loading.svelte";
   import Plus from "../components/icons/Plus.svelte";
   import Report from "../components/Report.svelte";
+  import ExportExcel from "../components/ExportExcel.svelte";
   import { onMount } from "svelte";
   import { Link } from "svelte-routing";
   import { breadcrumb } from "../stores/store";
@@ -24,7 +25,7 @@
     try {
       const response = await axios.get("/api/transactions/report");
       report = response.data;
-      if (response.status === 401 ) {
+      if (response.status === 401) {
         location.reload();
       }
     } catch (error) {
@@ -106,17 +107,21 @@
   </select>
 </div>
 
-<button
-  on:click={() => {
-    show_all = show_all === 1 ? 0 : 1;
-    localStorage.setItem("show_all", show_all);
-    fetchBalance();
-  }}
-  class={`${!show_all ? "bg-orange-500" : "bg-orange-800"} text-white font-semibold rounded-md outline-none focus:ring-2 ring-orange-600 py-1 px-3 mt-2`}
->
-  <span>{!show_all ? $_("pages.home.showBtn.show") : $_("pages.home.showBtn.hide")}</span>
-  <span>{$_("pages.home.showBtn.closedAccount")}</span>
-</button>
+<div class="flex items-center gap-1 mt-2">
+  <button
+    on:click={() => {
+      show_all = show_all === 1 ? 0 : 1;
+      localStorage.setItem("show_all", show_all);
+      fetchBalance();
+    }}
+    class={`${!show_all ? "bg-orange-500 hover:!bg-orange-600" : "bg-orange-800 hover:!bg-orange-900"} text-white font-semibold  rounded-md block outline-none focus:ring-2 ring-orange-600 py-1 px-3 duration-150`}
+  >
+    <span>{!show_all ? $_("pages.home.showBtn.show") : $_("pages.home.showBtn.hide")}</span>
+    <span>{$_("pages.home.showBtn.closedAccount")}</span>
+  </button>
+
+  <ExportExcel endpoint="/api/customers/excel" />
+</div>
 
 <div class="relative">
   <input

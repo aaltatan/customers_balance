@@ -1,6 +1,5 @@
 from ninja import Router
 from ninja.pagination import paginate, LimitOffsetPagination
-from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest
 from typing import List
 from . import schemas
@@ -9,6 +8,7 @@ from ..customers.models import Customer
 from django.db.models import Sum, F, Window, Count, Q
 from django.db.models.functions import LastValue
 from django.contrib import messages
+from excel_response import ExcelResponse
 
 
 router = Router(
@@ -32,6 +32,24 @@ def get_transactions(request: HttpRequest):
         .order_by('-added_at')
     )
     return transactions
+
+
+@router.get('/excel')
+def export_transactions_to_excel(request: HttpRequest):
+    transactions = (
+        Transaction
+        .objects
+        .annotate(
+            customer_name=F('customer__name'),
+            user_name=F('user__username'),
+            running_net=Window(
+                expression=Sum(F('debit') - F('credit')),
+                order_by='added_at'
+            )
+        )
+        .order_by('added_at')
+    )
+    return ExcelResponse(transactions)
 
 
 @router.get('/balance', response=List[schemas.BalanceSchema])
@@ -112,6 +130,23 @@ def get_ledger(request: HttpRequest, id:int):
     )
     return ledger
 
+
+@router.get('/ledger/excel/{id}')
+def get_ledger(request: HttpRequest, id:int):
+    ledger = (
+        Transaction
+        .objects
+        .filter(customer__id=id)
+        .annotate(
+            customer_name=F('customer__name'),
+            user_name=F('user__username'),
+            running_net=Window(
+            expression=Sum(F('debit') - F('credit')),
+            order_by='added_at'
+            ),
+        )
+    )
+    return ExcelResponse(ledger)
 
 
 @router.post('/add', response={201: None})

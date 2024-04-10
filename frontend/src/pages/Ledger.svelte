@@ -1,6 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import LoadingModal from "../components/LoadingModal.svelte";
+  import ExportExcel from '../components/ExportExcel.svelte';
   import { parseDate } from "../utils/functions.js";
   import { breadcrumb } from "../stores/store";
   import { Link } from "svelte-routing";
@@ -60,6 +61,7 @@
     <Link to={`/add-credit/${id}`} class="btn btn-success px-2 py-1">
       {$_('pages.ledger.btns.credit')}
     </Link>
+    <ExportExcel endpoint={`/api/transactions/ledger/excel/${id}`} />
   </div>
 {:else}
   <LoadingModal />

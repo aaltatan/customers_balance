@@ -8,9 +8,14 @@ import re
 
 
 def run():
-  
-    pattern = re.compile(r'\s{2,}')
-    name = 'Adad   dasd fsdf       dasd'
-    
 
-    print(pattern.sub(" ", name))
+    customers = (
+        Customer
+        .objects
+        .annotate(net=Sum(F("transaction__debit") - F("transaction__credit")))
+        .values()
+    )
+
+    for c in customers:
+        print(c)
+        print("#" * 100)

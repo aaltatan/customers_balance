@@ -3,6 +3,10 @@ const en = {
   currentlanguage: 'العربية',
   logout: 'Logout',
 
+  buttons: {
+    exportExcel: 'Export as excel'
+  }, 
+
   pages: {
 
     addTransaction: {
