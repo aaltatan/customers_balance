@@ -55,10 +55,10 @@
     {/each}
   </Table>
   <div class="flex items-center justify-center gap-1 my-4">
-    <Link to={`/add-debit/${id}`} class="btn btn-primary px-2 py-1">
+    <Link to={`/add-debit/${id}`} class="btn btn-primary px-3 py-2">
       {$_('pages.ledger.btns.debit')}
     </Link>
-    <Link to={`/add-credit/${id}`} class="btn btn-success px-2 py-1">
+    <Link to={`/add-credit/${id}`} class="btn btn-success px-3 py-2">
       {$_('pages.ledger.btns.credit')}
     </Link>
     <ExportExcel endpoint={`/api/transactions/ledger/excel/${id}`} />

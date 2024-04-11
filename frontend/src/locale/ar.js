@@ -47,6 +47,8 @@ const ar = {
         placeholder: "تصفية",
         noResults: "لا يوجد نتائج",
       },
+      total: 'الإجمالي',
+      count: 'عدد الزبائن',
     },
 
     ledger: {

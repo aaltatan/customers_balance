@@ -21,6 +21,10 @@
   let order_by;
   let show_all;
 
+  $: countOfTransactions = customers && customers.length;
+  $: totalOfTransactions =
+    customers && customers.reduce((acc, el) => acc + el.customer_net, 0).toLocaleString();
+
   const fetchReport = async () => {
     try {
       const response = await axios.get("/api/transactions/report");
@@ -84,7 +88,7 @@
       fetchBalance();
     }}
     id="ordering-selection"
-    class="py-1 px-2 bg-orange-500 text-white font-semibold rounded-md outline-none focus:ring-2 ring-orange-600"
+    class="py-2 px-3 bg-orange-500 text-white font-semibold rounded-md outline-none focus:ring-2 ring-orange-600 max-md:text-sm"
   >
     <option class="bg-white text-black py-1 font-semibold" value="customer__name"
       >{$_("pages.home.orderOptions.az")}</option
@@ -107,14 +111,14 @@
   </select>
 </div>
 
-<div class="flex items-center gap-1 mt-2">
+<div class="flex items-center gap-1 mt-2 max-md:text-sm">
   <button
     on:click={() => {
       show_all = show_all === 1 ? 0 : 1;
       localStorage.setItem("show_all", show_all);
       fetchBalance();
     }}
-    class={`${!show_all ? "bg-orange-500 hover:!bg-orange-600" : "bg-orange-800 hover:!bg-orange-900"} text-white font-semibold  rounded-md block outline-none focus:ring-2 ring-orange-600 py-1 px-3 duration-150`}
+    class={`${!show_all ? "bg-orange-500 hover:!bg-orange-600" : "bg-orange-800 hover:!bg-orange-900"} text-white font-semibold  rounded-md block outline-none focus:ring-2 ring-orange-600 py-2 px-3 duration-150`}
   >
     <span>{!show_all ? $_("pages.home.showBtn.show") : $_("pages.home.showBtn.hide")}</span>
     <span>{$_("pages.home.showBtn.closedAccount")}</span>
@@ -146,6 +150,13 @@
         {#each customers as customer (customer)}
           <CustomerCard {customer} />
         {/each}
+      </div>
+      <div class="mt-4 text-sm text-slate-400 tracking-tighter">
+        <span>{$_('pages.home.total')}</span>
+        <span class="text-black">{totalOfTransactions}</span>
+        <span>-</span>
+        <span>{$_('pages.home.count')}</span>
+        <span class="text-black">{countOfTransactions}</span>
       </div>
     {:else}
       <p class="capitalize tracking-tighter font-semibold">

@@ -27,7 +27,7 @@
 
 <button
   on:click={exportHandler}
-  class="btn btn-success !flex items-center gap-1 py-1 px-2"
+  class="btn btn-success !flex items-center gap-1 py-2 px-3"
 >
   {#if loading}
     <Loading ratio="1.5rem"/>

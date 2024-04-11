@@ -20,7 +20,7 @@
   }
   a,
   button {
-    @apply p-2 block w-full text-center rtl:max-md:text-xs;
+    @apply p-2 block w-full text-center rtl:max-md:text-sm;
   }
 }
 

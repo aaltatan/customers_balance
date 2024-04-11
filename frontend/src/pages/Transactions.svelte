@@ -87,7 +87,7 @@
 
     <div class="flex items-center justify-center gap-1">
       {#if lengthOfData > transactions.length}
-        <button class="btn btn-primary py-1 px-2" on:click={fetchMore}>
+        <button class="btn btn-primary py-2 px-3" on:click={fetchMore}>
           <div class="flex items-center gap-1">
             <span>
               {$_("pages.transactions.getMore")}

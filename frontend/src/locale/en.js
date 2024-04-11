@@ -47,7 +47,9 @@ const en = {
       search: {
         placeholder: 'Filter',
         noResults: 'No Results'
-      }
+      },
+      total: 'Total',
+      count: 'Count',
     },
 
     ledger: {

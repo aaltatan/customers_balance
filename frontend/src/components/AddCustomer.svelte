@@ -12,6 +12,7 @@
   let errorMessage;
 
   const fetchName = async () => {
+    canSend = false;
     const response = await fetch("/api/customers/", {
       method: "POST",
       headers: {
@@ -25,7 +26,7 @@
       if (response.status === 204) {
         canSend = true;
       } else if (response.status === 409) {
-        errorMessage = $_('pages.addTransaction.addCustomerErrorMessage');
+        errorMessage = $_("pages.addTransaction.addCustomerErrorMessage");
       }
     } catch (error) {
       console.log(error);
@@ -33,17 +34,19 @@
   };
 
   const addCustomer = async (e, customerName) => {
-    const response = await fetch("/api/customers/add", {
-      method: "POST",
-      headers: {
-        "X-CSRFToken": csrftoken,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ name: customerName }),
-    });
-    if (response.status === 200) {
-      inputName = "";
-      errorMessage = null;
+    if (canSend) {
+      const response = await fetch("/api/customers/add", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": csrftoken,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: customerName }),
+      });
+      if (response.status === 200) {
+        inputName = "";
+        errorMessage = null;
+      }
     }
   };
 
