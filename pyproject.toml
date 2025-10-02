@@ -1,0 +1,14 @@
+[project]
+name = "customers-balance"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "django-excel-response>=2.0.5",
+    "django==5.0.4",
+    "django-extensions>=4.1",
+    "django-ninja>=1.4.3",
+    "python-dotenv>=1.1.1",
+    "six>=1.17.0",
+]

@@ -24,6 +24,7 @@ class CustomerAdmin(admin.ModelAdmin):
         "net",
     ]
     sortable_by = ["name", "transactions_count", "net", "added_at"]
+    search_fields = ["name"]
 
     class Meta:
         ordering = ["name"]
