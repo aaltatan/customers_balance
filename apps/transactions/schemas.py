@@ -1,9 +1,10 @@
-from typing import List
-from ninja import Schema, Field
-from ninja.schema import validator
-from ninja.errors import ValidationError
 from datetime import datetime
-from ..customers.schemas import CustomerOutSchema
+
+from ninja import Field, Schema
+from ninja.errors import ValidationError
+from pydantic import field_validator
+
+from apps.customers.schemas import CustomerOutSchema
 
 
 class UserSchema(Schema):
@@ -34,9 +35,9 @@ class TransactionInSchema(Schema):
     type: str
     customer: int
 
-    @validator("amount")
+    @field_validator("amount")
     @classmethod
-    def validate_amount(cls, value):
+    def validate_amount(cls, value: int) -> int:
         if value <= 0:
             raise ValidationError(
                 [

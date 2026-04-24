@@ -1,8 +1,8 @@
-"""
-URL configuration for customers_balance project.
+"""URL configuration for customers_balance project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.0/topics/http/urls/
+
 Examples:
 Function views
     1. Add an import:  from my_app import views
@@ -13,27 +13,31 @@ Class-based views
 Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+
 """
-from django.contrib import admin
-from django.urls import path, include
+
+import os
+from pathlib import Path
+
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib import admin
+from django.urls import include, path
 from django.views.static import serve
-from .api import api
-from pathlib import Path
 from dotenv import load_dotenv
-import os
+
+from .api import api
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR)
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('accounts/', include('django.contrib.auth.urls')),
+    path("admin/", admin.site.urls),
+    path("accounts/", include("django.contrib.auth.urls")),
     ###
-    path('', include('apps.core.urls')),
-    path('api/', api.urls),
+    path("", include("apps.core.urls")),
+    path("api/", api.urls),
 ]
 
-if os.getenv('DEBUG') == 'TRUE':
-  urlpatterns += static(settings.STATIC_URL, view=serve, show_indexes=True)
+if os.getenv("DEBUG") == "TRUE":
+    urlpatterns += static(settings.STATIC_URL, view=serve, show_indexes=True)

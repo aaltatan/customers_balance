@@ -1,171 +1,74 @@
-from ninja import Router
-from ninja.pagination import paginate, LimitOffsetPagination
+from django.contrib import messages
 from django.http import HttpRequest
-from typing import List
+from excel_response import ExcelResponse
+from ninja import Router
+from ninja.pagination import LimitOffsetPagination, paginate
+
+from apps.customers.models import Customer
+
 from . import schemas
 from .models import Transaction
-from ..customers.models import Customer
-from django.db.models import Sum, F, Window, Count, Q
-from django.db.models.functions import LastValue
-from django.contrib import messages
-from excel_response import ExcelResponse
+
+router = Router(tags=["Transactions"])
 
 
-router = Router(
-    tags=['Transactions']
-)
-
-
-@router.get("/", response=List[schemas.TransactionSchema])
+@router.get("/", response=list[schemas.TransactionSchema])
 @paginate(LimitOffsetPagination)
-def get_transactions(request: HttpRequest):
-    transactions = (
-        Transaction
-        .objects
-        .annotate(
-            amount=F('debit') - F('credit'),
-            running_net=Window(
-                expression=Sum(F('debit') - F('credit')),
-                order_by='added_at'
-            )
-        )   
-        .order_by('-added_at')
-    )
-    return transactions
+def get_transactions(_: HttpRequest):
+    return Transaction.objects.annotate_running_net().annotate_amount().order_by("-added_at")
 
 
-@router.get('/excel')
-def export_transactions_to_excel(request: HttpRequest):
+@router.get("/excel")
+def export_transactions_to_excel(_: HttpRequest):
     transactions = (
-        Transaction
-        .objects
-        .annotate(
-            customer_name=F('customer__name'),
-            user_name=F('user__username'),
-            running_net=Window(
-                expression=Sum(F('debit') - F('credit')),
-                order_by='added_at'
-            )
-        )
-        .order_by('added_at')
+        Transaction.objects.annotate_running_net()
+        .annotate_customer_name()
+        .annotate_user_username()
+        .order_by("added_at")
     )
     return ExcelResponse(transactions)
 
 
-@router.get('/balance', response=List[schemas.BalanceSchema])
+@router.get("/balance", response=list[schemas.BalanceSchema])
 def get_balance(
-    request: HttpRequest, 
-    keyword: str | None = None,
-    show_all: int = 0,
-    order_by: str = 'customer__name'
+    _: HttpRequest, keyword: str | None = None, show_all: int = 0, order_by: str = "customer__name"
 ):
+    Transaction.objects.get_balance(keyword, show_all, order_by)
 
-    stmt_keyword = Q(customer__name__contains=keyword) if keyword else Q()
-    stmt_show_all = Q() if show_all else ~Q(customer_net=0)
-    stmt = stmt_keyword & stmt_show_all
 
-    balance = (
-        Transaction
-        .objects
-        .values('customer__name','customer__id')
-        .annotate(
-            last_date=Window(
-                expression=LastValue('date'),
-                partition_by='customer__name',
-            ),
-            customer_net=Window(
-                Sum(F('debit') - F('credit')),
-                partition_by='customer__name'
-            ),
-            transactions_count=Window(
-                Count('debit'),
-                partition_by='customer__name'
-            )
-        )
-        .distinct()
-        .filter(stmt)
-        .order_by(order_by)
+@router.get("/report")
+def get_report(_: HttpRequest):
+    report = Transaction.objects.get_report()
+    customers_count = Customer.objects.get_customers_count()
+    return {**report.asdict(), "customers_count": customers_count}
+
+
+@router.get("/ledger/{customer_id}", response=list[schemas.LedgerSchema])
+def get_ledger(_: HttpRequest, customer_id: int):
+    return (
+        Transaction.objects.filter(customer__id=customer_id)
+        .annotate_running_net()
+        .annotate_amount()
+        .all()
     )
 
-    return balance
 
-
-@router.get('/report')
-def get_report(request: HttpRequest):
-    report = (
-        Transaction
-        .objects
-        .aggregate(
-            total_debit=(Sum('debit')),
-            total_credit=(Sum('credit')),
-            net=(Sum(F('debit') - F('credit'))),
-            transactions_count=Count('debit'),
-        )
-    )
-    customers_count = (
-        Customer
-        .objects
-        .aggregate(
-            customers_count=Count('name')
-        )
-    )
-
-    report = {**report, **customers_count}
-    return report
-
-
-@router.get('/ledger/{id}', response=List[schemas.LedgerSchema])
-def get_ledger(request: HttpRequest, id:int):
+@router.get("/ledger/excel/{customer_id}")
+def export_ledger(_: HttpRequest, customer_id: int):
     ledger = (
-        Transaction
-        .objects
-        .filter(customer__id=id)
-        .annotate(
-            running_net=Window(
-            expression=Sum(F('debit') - F('credit')),
-            order_by='added_at'
-            ),
-            amount=F('debit') - F('credit')
-        )
-    )
-    return ledger
-
-
-@router.get('/ledger/excel/{id}')
-def get_ledger(request: HttpRequest, id:int):
-    ledger = (
-        Transaction
-        .objects
-        .filter(customer__id=id)
-        .annotate(
-            customer_name=F('customer__name'),
-            user_name=F('user__username'),
-            running_net=Window(
-            expression=Sum(F('debit') - F('credit')),
-            order_by='added_at'
-            ),
-        )
+        Transaction.objects.filter(customer__id=customer_id)
+        .annotate_customer_name()
+        .annotate_user_username()
+        .annotate_running_net()
     )
     return ExcelResponse(ledger)
 
 
-@router.post('/add', response={201: None})
-def add_transaction(request: HttpRequest, 
-                    payload: schemas.TransactionInSchema):
-    customer = (
-        Customer
-        .objects
-        .filter(id__exact=payload.customer)
-        .first()
+@router.post("/add", response={201: None})
+def add_transaction(request: HttpRequest, payload: schemas.TransactionInSchema):
+    customer = Customer.objects.filter(id__exact=payload.customer).first()
+    Transaction.objects.create(
+        **{"customer": customer, "user": request.user, payload.type: payload.amount}
     )
-    Transaction.objects.create(**{
-        'customer': customer,
-        'user': request.user,
-        payload.type: payload.amount,
-    })
-    messages.success(
-        request=request, 
-        message='Transaction has been added successfully'
-    )
+    messages.success(request=request, message="Transaction has been added successfully")
     return 201, None
-
